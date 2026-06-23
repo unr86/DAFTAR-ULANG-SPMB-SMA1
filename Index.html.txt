@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      /* PENGATURAN BACKGROUND: Ganti URL di bawah dengan gambar latar belakang sekolah Anda */
+      background: linear-gradient(rgba(0, 50, 100, 0.7), rgba(0, 20, 50, 0.8)), 
+                  url('https://png.pngtree.com/thumb_back/fh260/background/20221012/pngtree-information-systems-abstract-communication-computing-photo-image_9677440.jpg');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      min-height: 100vh;
+      padding-top: 40px;
+      padding-bottom: 40px;
+    }
+
+    .header-branding {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    .logo-sekolah {
+      /* PENGATURAN LOGO: Ganti URL di bawah dengan link logo sekolah Anda */
+      width: 120px;
+      height: auto;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+      margin-bottom: 15px;
+    }
+
+    .school-name {
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      margin-bottom: 5px;
+    }
+
+    .card-custom {
+      background: rgba(255, 255, 255, 0.95);
+      border: none;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+      overflow: hidden;
+      max-width: 550px;
+      margin: 0 auto;
+    }
+
+    .card-header-custom {
+      background: #00468b;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-weight: 600;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .btn-search {
+      background: #00468b;
+      border: none;
+      transition: 0.3s;
+    }
+
+    .btn-search:hover {
+      background: #002d5a;
+      transform: translateY(-2px);
+    }
+
+    #hasilCard {
+      display: none;
+      margin-top: 25px;
+    }
+
+    .table th {
+      background-color: #f8f9fa;
+      color: #555;
+    }
+
+    .badge-status {
+      padding: 8px 15px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+    }
+
+    .loading-overlay {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container px-3">
+    
+    <div class="header-branding">
+     <img src="https://lh3.googleusercontent.com/u/0/d/121ssTc5QuPlKKH1HGkLiL7zXgTgeCQ7Y" alt="Logo Sekolah" class="logo-sekolah">
+      <h1 class="school-name">SMA NEGERI 1 SUKABUMI</h1>
+      <p class="lead">Portal Informasi Daftar Ulang Siswa Baru</p>
+      <div class="mt-2 text-white-50 fw-semibold">
+  <i class="fa-solid fa-calendar-day me-1"></i> <span id="infoTanggal"></span> 
+  <span class="mx-2">|</span>
+  <i class="fa-solid fa-clock me-1"></i> <span id="infoWaktu"></span>
+</div>
+    </div>
+
+    <div class="card card-custom p-0">
+      <div class="card-header-custom">
+        <i class="fa-solid fa-magnifying-glass me-2"></i> CEK STATUS PENDAFTARAN
+      </div>
+      <div class="card-body p-4">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Nomor Induk Siswa (NIS)</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-id-card"></i></span>
+            <input type="text" class="form-control form-control-lg" id="nisInput" placeholder="Masukkan NIS Anda...">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-lg w-100 btn-search" onclick="prosesCari()">
+          Periksa Data <i class="fa-solid fa-arrow-right ms-2"></i>
+        </button>
+
+        <div class="text-center mt-3 loading-overlay" id="loader">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2 text-muted">Memproses data...</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="hasilCard" class="card card-custom">
+      <div class="card-header-custom" style="background: #198754;">
+        <i class="fa-solid fa-circle-check me-2"></i> DATA DITEMUKAN
+      </div>
+      <div class="card-body p-4">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <tr>
+              <th><i class="fa-solid fa-user me-2"></i> Nama</th>
+              <td id="resNama" class="fw-bold text-uppercase"></td>
+            </tr>
+            <tr>
+              <th><i class="fa-solid fa-school me-2"></i> Asal Sekolah</th>
+              <td id="resAsal"></td>
+            </tr>
+            <tr>
+              <th><i class="fa-solid fa-route me-2"></i> Jalur</th>
+              <td id="resJalur"></td>
+            </tr>
+            <tr>
+              <th><i class="fa-solid fa-info-circle me-2"></i> Status</th>
+              <td><span id="resKeterangan" class="badge-status"></span></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="mt-4 text-center">
+          <a id="btnDownload" href="#" target="_blank" class="btn btn-success btn-lg w-100 fw-bold shadow-sm">
+            <i class="fa-solid fa-file-arrow-down me-2"></i> Download Bukti Daftar
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function prosesCari() {
+      var nis = document.getElementById("nisInput").value;
+      if (!nis) {
+        alert("Masukkan NIS terlebih dahulu!");
+        return;
+      }
+
+      document.getElementById("loader").style.display = "block";
+      document.getElementById("hasilCard").style.display = "none";
+
+      google.script.run
+        .withSuccessHandler(tampilkanHasil)
+        .withFailureHandler(function(err) {
+            alert("Error: " + err);
+            document.getElementById("loader").style.display = "none";
+         })
+        .cariSiswa(nis);
+    }
+
+    function tampilkanHasil(hasil) {
+      document.getElementById("loader").style.display = "none";
+      
+      if (hasil.status === "tidak_ditemukan") {
+        alert("Maaf, NIS tidak ditemukan. Silakan hubungi panitia.");
+        return;
+      }
+
+      document.getElementById("resNama").innerText = hasil.nama;
+      document.getElementById("resAsal").innerText = hasil.asalSekolah;
+      document.getElementById("resJalur").innerText = hasil.jalur;
+      
+      var ketBadge = document.getElementById("resKeterangan");
+      ketBadge.innerText = hasil.keterangan;
+      
+      // Pewarnaan status
+      if (hasil.keterangan.toLowerCase().includes("lulus") || hasil.keterangan.toLowerCase().includes("selesai")) {
+        ketBadge.className = "badge-status bg-success text-white";
+      } else {
+        ketBadge.className = "badge-status bg-warning text-dark";
+      }
+
+      var btnDownload = document.getElementById("btnDownload");
+      if (hasil.linkBukti) {
+        btnDownload.href = hasil.linkBukti;
+        btnDownload.style.display = "block";
+      } else {
+        btnDownload.style.display = "none";
+      }
+
+      document.getElementById("hasilCard").style.display = "block";
+    }
+  </script>
+  <script>
+  function updateWaktu() {
+    var sekarang = new Date();
+    
+    // Opsi pengaturan format tanggal Indonesia
+    var opsiTanggal = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    var tanggalIndo = sekarang.toLocaleDateString('id-ID', opsiTanggal);
+    
+    // Format waktu (Jam:Menit:Detik)
+    var jam = String(sekarang.getHours()).padStart(2, '0');
+    var menit = String(sekarang.getMinutes()).padStart(2, '0');
+    var detik = String(sekarang.getSeconds()).padStart(2, '0');
+    var waktuIndo = jam + ':' + menit + ':' + detik + ' WIB';
+    
+    // Masukkan ke elemen HTML
+    document.getElementById('infoTanggal').innerText = tanggalIndo;
+    document.getElementById('infoWaktu').innerText = waktuIndo;
+  }
+
+  // Jalankan fungsi pertama kali saat halaman dibuka
+  updateWaktu();
+  // Perbarui jam setiap 1 detik (1000 milidetik)
+  setInterval(updateWaktu, 1000);
+</script>
+</body>
+</html>
